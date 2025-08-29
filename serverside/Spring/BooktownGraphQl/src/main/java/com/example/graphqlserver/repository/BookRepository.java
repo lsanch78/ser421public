@@ -16,7 +16,10 @@ public class BookRepository {
     static {
         dummyBooks.addAll(Arrays.asList(
                 new Book("123456789", "The Road Not Taken", 0),
-                new Book("987654321", "To Kill a Mockingbird", 1),
+                new Book("987654321", "To Kill a Mockingbird", 0),
+                new Book("987654322", "The Not So Great Gatsby", 1),
+                new Book("987654323", "To Hire a Lawyer", 1),
+                new Book("987654324", "How to use GraphQL for dummies", 2),
                 new Book("456789123", "The Great Gatsby", 2)
         ));
     }
@@ -48,6 +51,10 @@ public class BookRepository {
             }
         }
         return bookList;
+    }
+
+    public void removeByIsbn(String isbn) {
+        dummyBooks.removeIf(book -> book.getIsbn().equals(isbn));
     }
 
 }

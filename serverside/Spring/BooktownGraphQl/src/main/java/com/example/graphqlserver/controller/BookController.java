@@ -12,6 +12,7 @@ import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -36,6 +37,25 @@ public class BookController {
         return bookRepository.getBookByISBN(isbn);
     }
 
+    @QueryMapping
+    public List<Book> booksByAuthorId(@Argument("authorId") int authorId) { return BookRepository.getBooksByAuthorId(authorId); }
+
+    @QueryMapping
+    public List<String> bookTitlesByAuthorFirstname(@Argument("firstName") String firstName) {
+        List<Author> authors = authorRepository.getAuthorByFirstname(firstName);
+        // get authors by Id
+        List<String> bookTitles = new ArrayList<>(List.of());
+        for (Author author : authors) {
+            List<Book> books = bookRepository.getBooksByAuthorId(author.getId());
+            for (Book book : books) {
+                bookTitles.add(book.getTitle());
+            }
+        }
+        return bookTitles;
+    }
+
+
+
     @MutationMapping
     public AddBookPayload addBook(@Argument AddBookInput input) {
         Author author = authorRepository.getAuthorById(input.authorId());
@@ -46,5 +66,16 @@ public class BookController {
         author.getBooks().add(book);
         var out = new AddBookPayload(book);
         return out;
+    }
+
+
+    @MutationMapping
+    public String removeBookByIsbn(@Argument String isbn) {
+        Book bookToDelete = bookRepository.getBookByISBN(isbn);
+        if (bookToDelete != null) {
+            bookRepository.removeByIsbn(isbn);
+            return isbn;
+        }
+        return null;
     }
 }

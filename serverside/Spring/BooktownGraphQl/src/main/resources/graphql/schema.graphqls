@@ -11,6 +11,19 @@ type Query {
 
     # Fetch a book by its ISBN (International Standard Book Number).
     bookByISBN(isbn: String): Book
+
+    # Fetch a list of books based on the author's ID
+    # Ex. raw query: {"query":"query { booksByAuthorId(authorId: 0) { isbn title } }" }
+    booksByAuthorId(authorId: ID): [Book]
+
+    # Fetch a list of authors by their last name
+    # Ex. raw query: {"query":"query { authorsByLastname(lastName: \"Fowler\") { firstName lastName } }" }
+    authorsByLastname(lastName: String): [Author]
+
+
+    # Fetch a list of book Titles (Strings) written by an author's first name
+    # Ex. raw query: { "query": "{ bookTitlesByAuthorFirstname(firstName: \"Robert\") }" }
+    bookTitlesByAuthorFirstname(firstName: String): [String]
 }
 
 # Represents a book in the system.
@@ -80,4 +93,12 @@ type Mutation {
 
     # Add a new book to the system.
     addBook(input: AddBookInput): AddBookPayload
+
+    # Update author's first name by their ID
+    # Ex. raw query: { "query": "mutation { updateAuthorFirstNameById(authorId: 1, firstName: \"Kent\") }" }
+    updateAuthorFirstNameById(authorId: ID!, firstName: String!): String
+
+    # Remove a book by its isbn, if successful it will return the isbn else returns null
+    # Ex. raw query:
+    removeBookByIsbn(isbn: String): String
 }

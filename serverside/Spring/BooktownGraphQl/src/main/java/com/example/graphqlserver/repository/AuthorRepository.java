@@ -41,4 +41,25 @@ public class AuthorRepository {
         dummyAuthors.add(newAuthor);
         return newAuthor;
     }
+
+    public List<Author> getAuthorByLastname(String lastName) {
+        for (Author author : dummyAuthors) {
+            if (author.getLastName().equals(lastName)) {
+                return List.of(author);
+            }
+        }
+        return null;
+    }
+
+
+    public List<Author> getAuthorByFirstname(String firstName) {
+        for (Author author : dummyAuthors) {
+            if (author.getFirstName().equals(firstName)) {
+                return List.of(author);
+            }
+        }
+        return null;
+    }
+
+
 }

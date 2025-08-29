@@ -32,6 +32,21 @@ public class AuthorController {
         return authorRepository.getAuthorById(id);
     }
 
+    @QueryMapping
+    public List<Author> authorsByLastname(@Argument("lastName") String lastName) {return authorRepository.getAuthorByLastname(lastName); }
+
+    @MutationMapping
+    public String updateAuthorFirstNameById(@Argument("authorId") int id, @Argument("firstName") String firstName) {
+        Author author = authorRepository.getAuthorById(id);
+        if (author != null) {
+            String oldFirstName = author.getFirstName();
+            author.setFirstName(firstName);
+            return oldFirstName;
+        }
+        return null;
+    }
+
+
     @MutationMapping
     public AddAuthorPayload addAuthor(@Argument AddAuthorInput input) {
         var author = authorRepository.save(input.firstName(), input.lastName());
