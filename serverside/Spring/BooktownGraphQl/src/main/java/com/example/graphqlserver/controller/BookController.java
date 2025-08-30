@@ -27,26 +27,31 @@ public class BookController {
         this.authorRepository = authorRepository;
     }
 
+    // Get all books
     @QueryMapping
     public List<Book> books() {
-        return bookRepository.getBooks();
+        return bookRepository.findAll();
     }
 
+    // Get book by ISBN
     @QueryMapping
-    public  Book bookByISBN(@Argument("isbn") String isbn) {
-        return bookRepository.getBookByISBN(isbn);
+    public Book bookByISBN(@Argument("isbn") String isbn) {
+        return bookRepository.findByIsbn(isbn);
     }
 
+    // Get all books by authorId
     @QueryMapping
-    public List<Book> booksByAuthorId(@Argument("authorId") int authorId) { return BookRepository.getBooksByAuthorId(authorId); }
+    public List<Book> booksByAuthorId(@Argument("authorId") int authorId) {
+        return bookRepository.findByAuthorId(authorId);
+    }
 
+    // Get only titles by author's first name
     @QueryMapping
     public List<String> bookTitlesByAuthorFirstname(@Argument("firstName") String firstName) {
-        List<Author> authors = authorRepository.getAuthorByFirstname(firstName);
-        // get authors by Id
-        List<String> bookTitles = new ArrayList<>(List.of());
+        List<Author> authors = authorRepository.findByFirstName(firstName);
+        List<String> bookTitles = new ArrayList<>();
         for (Author author : authors) {
-            List<Book> books = bookRepository.getBooksByAuthorId(author.getId());
+            List<Book> books = bookRepository.findByAuthorId(author.getId());
             for (Book book : books) {
                 bookTitles.add(book.getTitle());
             }
@@ -54,26 +59,33 @@ public class BookController {
         return bookTitles;
     }
 
-
-
+    // Add a new book
     @MutationMapping
     public AddBookPayload addBook(@Argument AddBookInput input) {
-        Author author = authorRepository.getAuthorById(input.authorId());
-        if (author == null) {
-            throw  new IllegalArgumentException("Author with ID " + input.authorId() + "does not exist");
-        }
-        var book = bookRepository.save(input.isbn(), input.title(), input.authorId());
-        author.getBooks().add(book);
-        var out = new AddBookPayload(book);
-        return out;
+        Author author = authorRepository.findById(input.authorId())
+                .orElseThrow(() ->
+                        new IllegalArgumentException("Author with ID " + input.authorId() + " does not exist"));
+
+        Book book = new Book();
+        book.setIsbn(input.isbn());
+        book.setTitle(input.title());
+        book.setAuthor(author);
+
+        Book saved = bookRepository.save(book);
+
+        // also update Author's book list (optional, if you model bidirectional relationship)
+        author.getBooks().add(saved);
+        authorRepository.save(author);
+
+        return new AddBookPayload(saved);
     }
 
-
+    // Remove a book by ISBN
     @MutationMapping
     public String removeBookByIsbn(@Argument String isbn) {
-        Book bookToDelete = bookRepository.getBookByISBN(isbn);
+        Book bookToDelete = bookRepository.findByIsbn(isbn);
         if (bookToDelete != null) {
-            bookRepository.removeByIsbn(isbn);
+            bookRepository.deleteByIsbn(isbn);
             return isbn;
         }
         return null;

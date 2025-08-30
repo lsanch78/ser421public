@@ -3,12 +3,18 @@ package com.example.graphqlserver.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import jakarta.persistence.*;
 
+@Entity
 public class Author {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String firstName;
 
+
+    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Book> books = new ArrayList<>();
 
     public Author(int id, String firstName, String lastName, List<Book> books) {
@@ -18,7 +24,11 @@ public class Author {
         this.books = books;
     }
 
-    private final String lastName;
+    private String lastName;
+
+    public Author() {
+
+    }
 
     public int getId() {
         return id;
@@ -45,4 +55,6 @@ public class Author {
     }
 
     public void setFirstName(String firstName) { this.firstName = firstName;}
-}
+
+    public void setLastName(String lastName) { this.lastName = lastName; }
+    }

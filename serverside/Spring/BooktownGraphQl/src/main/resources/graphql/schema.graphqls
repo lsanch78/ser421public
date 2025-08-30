@@ -35,7 +35,7 @@ type Book {
     title: String
 
     # The unique ID of the author of the book.
-    authorId: ID
+    author: Author
 }
 
 # Represents an author who writes books.

@@ -1,15 +1,28 @@
 package com.example.graphqlserver.model;
 
+import jakarta.persistence.*;
+
+@Entity
 public class Book {
+    @Id
     private String isbn;
     private String title;
 
-    private int authorId;
+    @ManyToOne
+    @JoinColumn(name="author_id")
+    private Author author;
 
-    public Book(String isbn, String title, int authorId) {
+
+
+
+    public Book(String isbn, String title, Author author) {
         this.isbn = isbn;
         this.title = title;
-        this.authorId = authorId;
+        this.author = author;
+    }
+
+    public Book() {
+
     }
 
     public String getIsbn() {
@@ -28,11 +41,5 @@ public class Book {
         this.title = title;
     }
 
-    public int getAuthorId() {
-        return authorId;
+    public void setAuthor(Author author) {this.author = author;}
     }
-
-    public void setAuthorId(int authorId) {
-        this.authorId = authorId;
-    }
-}

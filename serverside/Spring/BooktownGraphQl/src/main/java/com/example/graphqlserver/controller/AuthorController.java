@@ -22,35 +22,45 @@ public class AuthorController {
         this.authorRepository = authorRepository;
     }
 
+    // Get all authors
     @QueryMapping
     public List<Author> authors() {
-        return authorRepository.getAuthors();
+        return authorRepository.findAll();
     }
 
+    // Get author by id
     @QueryMapping
-    public  Author authorById(@Argument("id") int id) {
-        return authorRepository.getAuthorById(id);
+    public Author authorById(@Argument("id") int id) {
+        return authorRepository.findById(id).orElse(null);
     }
 
+    // Get authors by last name
     @QueryMapping
-    public List<Author> authorsByLastname(@Argument("lastName") String lastName) {return authorRepository.getAuthorByLastname(lastName); }
+    public List<Author> authorsByLastname(@Argument("lastName") String lastName) {
+        return authorRepository.findByLastName(lastName);
+    }
 
+    // Update author's first name by id
     @MutationMapping
     public String updateAuthorFirstNameById(@Argument("authorId") int id, @Argument("firstName") String firstName) {
-        Author author = authorRepository.getAuthorById(id);
-        if (author != null) {
-            String oldFirstName = author.getFirstName();
-            author.setFirstName(firstName);
-            return oldFirstName;
-        }
-        return null;
+        return authorRepository.findById(id)
+                .map(author -> {
+                    String oldFirstName = author.getFirstName();
+                    author.setFirstName(firstName);
+                    authorRepository.save(author); // persist change
+                    return oldFirstName;
+                })
+                .orElse(null);
     }
 
-
+    // Add a new author
     @MutationMapping
     public AddAuthorPayload addAuthor(@Argument AddAuthorInput input) {
-        var author = authorRepository.save(input.firstName(), input.lastName());
-        var out = new AddAuthorPayload(author);
-        return out;
+        Author author = new Author();
+        author.setFirstName(input.firstName());
+        author.setLastName(input.lastName());
+
+        Author saved = authorRepository.save(author);
+        return new AddAuthorPayload(saved);
     }
 }
